@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="Settings" />
+
+    <item
+        android:id="@+id/action_storage"
+        android:title="Storage Info" />
+
+    <item
+        android:id="@+id/action_internal"
+        android:title="Backup Internal" />
+
+    <item
+        android:id="@+id/action_cache"
+        android:title="Create Cache" />
+    <item
+        android:id="@+id/action_firebase"
+        android:title="Backup Cloud" />
+
+</menu>
