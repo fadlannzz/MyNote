@@ -4,18 +4,22 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.materialswitch.MaterialSwitch;
+
 public class SettingsActivity extends AppCompatActivity {
 
     EditText editNama;
-    Switch switchAutoSave;
+    MaterialSwitch switchAutoSave;
 
     Button btnSimpan;
     Button btnReset;
+
+    MaterialToolbar toolbarSettings;
 
     // Nama file SharedPreferences
     private static final String PREF_NAME =
@@ -36,8 +40,13 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         // Hubungkan XML dengan Java
+        toolbarSettings = findViewById(R.id.toolbarSettings);
+
         editNama = findViewById(R.id.editNama);
-        switchAutoSave = findViewById(R.id.switchAutoSave);
+
+        switchAutoSave = findViewById(
+                R.id.switchAutoSave
+        );
 
         btnSimpan = findViewById(R.id.btnSimpan);
         btnReset = findViewById(R.id.btnReset);
@@ -47,6 +56,11 @@ public class SettingsActivity extends AppCompatActivity {
                 PREF_NAME,
                 MODE_PRIVATE
         );
+
+        // Tombol kembali
+        toolbarSettings.setNavigationOnClickListener(v -> {
+            finish();
+        });
 
         // Membaca data yang sudah pernah disimpan
         tampilkanPengaturan();
@@ -93,23 +107,19 @@ public class SettingsActivity extends AppCompatActivity {
         boolean autoSave =
                 switchAutoSave.isChecked();
 
-        // Membuka Editor
         SharedPreferences.Editor editor =
                 preferences.edit();
 
-        // Menyimpan String
         editor.putString(
                 KEY_NAMA,
                 nama
         );
 
-        // Menyimpan Boolean
         editor.putBoolean(
                 KEY_AUTO_SAVE,
                 autoSave
         );
 
-        // Menyimpan perubahan
         editor.apply();
 
         Toast.makeText(
@@ -124,15 +134,14 @@ public class SettingsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor =
                 preferences.edit();
 
-        // Menghapus semua data SharedPreferences
         editor.clear();
-
-        // Terapkan perubahan
         editor.apply();
 
-        // Kembalikan tampilan
         editNama.setText("");
-        switchAutoSave.setChecked(true);
+
+        switchAutoSave.setChecked(
+                true
+        );
 
         Toast.makeText(
                 this,

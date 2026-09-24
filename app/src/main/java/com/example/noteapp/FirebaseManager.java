@@ -12,81 +12,138 @@ import java.util.Map;
 
 public class FirebaseManager {
 
-    // =================================================
-    // ROOT DATABASE
-    // =================================================
+    private static final String DATABASE_URL =
+            "https://my-note-7f92c-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     private static final String ROOT_NOTES = "catatan";
 
 
-    // =================================================
-    // UPLOAD SEMUA CATATAN DARI SQLITE KE FIREBASE
-    // =================================================
+    // ==================================================
+    // MENGAMBIL DATABASE FIREBASE
+    // ==================================================
+
+    private static DatabaseReference getNotesReference() {
+
+        return FirebaseDatabase
+                .getInstance(DATABASE_URL)
+                .getReference(ROOT_NOTES);
+    }
+
+
+    // ==================================================
+    // BACKUP SEMUA CATATAN SQLITE KE FIREBASE
+    // ==================================================
 
     public static void uploadAllNotes(
             List<MyNote> daftar,
             Context context
     ) {
 
+        if (daftar == null) {
+
+            Toast.makeText(
+                    context,
+                    "Data catatan tidak ditemukan",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
         DatabaseReference reference =
-                FirebaseDatabase
-                        .getInstance()
-                        .getReference(ROOT_NOTES);
+                getNotesReference();
 
-        // Hapus data cloud lama terlebih dahulu
-        reference.removeValue()
-                .addOnCompleteListener(task -> {
+        /*
+         * Semua perubahan kita kumpulkan terlebih dahulu.
+         * Setelah itu dikirim menggunakan updateChildren().
+         */
+        Map<String, Object> updates =
+                new HashMap<>();
 
-                    if (!task.isSuccessful()) {
+        for (MyNote note : daftar) {
+
+            String path =
+                    String.valueOf(note.getId());
+
+            Map<String, Object> data =
+                    new HashMap<>();
+
+            data.put(
+                    "id",
+                    note.getId()
+            );
+
+            data.put(
+                    "judul",
+                    note.getJudul()
+            );
+
+            data.put(
+                    "isi",
+                    note.getIsi()
+            );
+
+            data.put(
+                    "tanggal",
+                    note.getTanggal()
+            );
+
+            updates.put(
+                    path,
+                    data
+            );
+        }
+
+        /*
+         * Kalau tidak ada catatan,
+         * hapus semua data catatan di Firebase.
+         */
+        if (updates.isEmpty()) {
+
+            reference.removeValue()
+                    .addOnSuccessListener(unused -> {
 
                         Toast.makeText(
                                 context,
-                                "Gagal menghapus backup cloud lama",
+                                "Firebase sudah dikosongkan",
                                 Toast.LENGTH_SHORT
                         ).show();
 
-                        return;
-                    }
+                    })
+                    .addOnFailureListener(e -> {
 
-                    // Upload setiap catatan
-                    for (MyNote note : daftar) {
+                        Toast.makeText(
+                                context,
+                                "Gagal menghapus data cloud: "
+                                        + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show();
 
-                        Map<String, Object> data =
-                                new HashMap<>();
+                    });
 
-                        data.put(
-                                "id",
-                                note.getId()
-                        );
+            return;
+        }
 
-                        data.put(
-                                "judul",
-                                note.getJudul()
-                        );
-
-                        data.put(
-                                "isi",
-                                note.getIsi()
-                        );
-
-                        data.put(
-                                "tanggal",
-                                note.getTanggal()
-                        );
-
-                        reference
-                                .child(
-                                        String.valueOf(
-                                                note.getId()
-                                        )
-                                )
-                                .setValue(data);
-                    }
+        /*
+         * Upload sekaligus.
+         */
+        reference.updateChildren(updates)
+                .addOnSuccessListener(unused -> {
 
                     Toast.makeText(
                             context,
                             "Backup cloud berhasil",
                             Toast.LENGTH_SHORT
+                    ).show();
+
+                })
+                .addOnFailureListener(e -> {
+
+                    Toast.makeText(
+                            context,
+                            "Backup gagal: "
+                                    + e.getMessage(),
+                            Toast.LENGTH_LONG
                     ).show();
                 });
     }

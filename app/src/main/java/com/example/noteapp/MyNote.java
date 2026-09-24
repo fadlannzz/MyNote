@@ -40,7 +40,8 @@ public class MyNote {
         this.id = id;
     }
 
-    public void setJudul(String judul) {
+    public void setJudul
+            (String judul) {
         this.judul = judul;
     }
 

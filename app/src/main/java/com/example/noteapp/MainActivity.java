@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,28 +37,34 @@ public class MainActivity extends AppCompatActivity {
     MyNoteAdapter adapter;
     ArrayList<MyNote> daftarMyNote;
 
+    // =========================
+    // EXPORT VARIABLE
+    // =========================
+
+    private static final int REQUEST_EXPORT_FILE = 100;
+
+    private MyNote noteYangAkanDiExport;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // =========================
         // INISIALISASI DATABASE
         // =========================
 
         database = new Database(this);
-
         // =========================
         // HUBUNGKAN VIEW
         // =========================
 
-        recyclerCatatan = findViewById(
-                R.id.recyclerCatatan
-        );
-
-        tvSectionTitle = findViewById(
-                R.id.tvSectionTitle
-        );
+        recyclerCatatan = findViewById(R.id.recyclerCatatan);
+        tvSectionTitle = findViewById(R.id.tvSectionTitle);
 
         // =========================
         // RECYCLER VIEW
@@ -71,16 +78,15 @@ public class MainActivity extends AppCompatActivity {
         // TOMBOL TAMBAH
         // =========================
 
-        findViewById(R.id.btnTambah)
-                .setOnClickListener(v -> {
+        findViewById(R.id.btnTambah).setOnClickListener(v -> {
 
-                    Intent intent = new Intent(
-                            MainActivity.this,
-                            AddNote.class
-                    );
+            Intent intent = new Intent(
+                    MainActivity.this,
+                    AddNote.class
+            );
 
-                    startActivity(intent);
-                });
+            startActivity(intent);
+        });
     }
 
     // ==================================================
@@ -101,14 +107,11 @@ public class MainActivity extends AppCompatActivity {
     private void tampilkanSemuaMyNote() {
 
         // Ambil semua data dari SQLite
-        daftarMyNote =
-                database.ambilSemuaMyNote();
+        daftarMyNote = database.ambilSemuaMyNote();
 
         // Update jumlah catatan
         tvSectionTitle.setText(
-                "All Notes (" +
-                        daftarMyNote.size() +
-                        ")"
+                "All Notes (" + daftarMyNote.size() + ")"
         );
 
         // Buat adapter
@@ -188,10 +191,9 @@ public class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Hapus Catatan?")
                 .setMessage(
-                        "Apakah kamu yakin ingin " +
-                                "menghapus \"" +
-                                note.getJudul() +
-                                "\"?"
+                        "Apakah kamu yakin ingin menghapus \""
+                                + note.getJudul()
+                                + "\"?"
                 )
                 .setNegativeButton(
                         "Batal",
@@ -272,14 +274,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ==================================================
-    // EXPORT VARIABLE
-    // ==================================================
-
-    private static final int REQUEST_EXPORT_FILE = 100;
-
-    private MyNote noteYangAkanDiExport;
-
-    // ==================================================
     // HASIL FILE PICKER
     // ==================================================
 
@@ -300,8 +294,7 @@ public class MainActivity extends AppCompatActivity {
                 && resultCode == RESULT_OK
                 && data != null) {
 
-            android.net.Uri uri =
-                    data.getData();
+            android.net.Uri uri = data.getData();
 
             if (uri != null
                     && noteYangAkanDiExport != null) {
@@ -327,12 +320,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ==================================================
-    // MENU TOOLBAR
+    // MEMANGGIL TOOLBAR MENU
     // ==================================================
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
+        // Memanggil res/menu/main_menu.xml
         getMenuInflater().inflate(
                 R.menu.main_menu,
                 menu
@@ -342,53 +336,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ==================================================
-    // MENU TOOLBAR CLICK
+    // TOOLBAR MENU CLICK
     // ==================================================
 
     @Override
-    public boolean onOptionsItemSelected(
-            MenuItem item
-    ) {
+    public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
 
-        // -------------------------
+        // =========================
         // SETTINGS
-        // -------------------------
+        // =========================
 
         if (id == R.id.action_settings) {
 
-            Intent intent =
-                    new Intent(
-                            MainActivity.this,
-                            SettingsActivity.class
-                    );
+            Intent intent = new Intent(
+                    MainActivity.this,
+                    SettingsActivity.class
+            );
 
             startActivity(intent);
 
             return true;
         }
 
-        // -------------------------
+        // =========================
         // STORAGE INFO
-        // -------------------------
+        // =========================
 
         if (id == R.id.action_storage) {
 
             Toast.makeText(
                     this,
-                    StorageManager.getStorageInfo(
-                            this
-                    ),
+                    StorageManager.getStorageInfo(this),
                     Toast.LENGTH_LONG
             ).show();
 
             return true;
         }
 
-        // -------------------------
+        // =========================
         // BACKUP INTERNAL
-        // -------------------------
+        // =========================
 
         if (id == R.id.action_internal) {
 
@@ -400,37 +389,17 @@ public class MainActivity extends AppCompatActivity {
 
             for (MyNote note : notes) {
 
-                text.append(
-                        "Judul: "
-                );
-
-                text.append(
-                        note.getJudul()
-                );
-
+                text.append("Judul: ");
+                text.append(note.getJudul());
                 text.append("\n");
 
-                text.append(
-                        "Isi: "
-                );
-
-                text.append(
-                        note.getIsi()
-                );
-
+                text.append("Isi: ");
+                text.append(note.getIsi());
                 text.append("\n");
 
-                text.append(
-                        "Tanggal: "
-                );
-
-                text.append(
-                        note.getTanggal()
-                );
-
-                text.append(
-                        "\n\n"
-                );
+                text.append("Tanggal: ");
+                text.append(note.getTanggal());
+                text.append("\n\n");
             }
 
             boolean berhasil =
@@ -450,9 +419,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        // -------------------------
+        // =========================
         // CACHE
-        // -------------------------
+        // =========================
 
         if (id == R.id.action_cache) {
 
@@ -472,6 +441,11 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
+
+        // =========================
+        // FIREBASE
+        // =========================
+
         if (id == R.id.action_firebase) {
 
             FirebaseManager.uploadAllNotes(
@@ -485,3 +459,4 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
+
